@@ -11,22 +11,21 @@ defmodule Telemetrix.Application do
     children = [
       Telemetrix.Repo,
       {Ecto.Migrator,
-       repos: Application.fetch_env!(:telemetrix, :ecto_repos), skip: skip_migrations?()},
+      repos: Application.fetch_env!(:telemetrix, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:telemetrix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Telemetrix.PubSub},
       # Start a worker by calling: Telemetrix.Worker.start_link(arg)
       # {Telemetrix.Worker, arg}
       {Tortoise.Connection,
-        [
-          client_id: "telemetrix_dev",
-          server: {Tortoise.Transport.Tcp, host: "localhost", port: 1883},
-          handler: {Telemetrix.MQTT.Handler, []},
-          subscriptions: [
-            {"esp32/+/sensor/#", 0}
-          ]
-        ]
-      }
-    ]
+      [
+        client_id: client_id(),
+        server: {Tortoise.Transport.Tcp, host: "localhost", port: 1883},
+        handler: {Telemetrix.MQTT.Handler, []},
+        subscriptions: []
+      ]
+    },
+    Telemetrix.Subscriptions.SubscriptionManager
+  ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Telemetrix.Supervisor)
   end
@@ -35,4 +34,8 @@ defmodule Telemetrix.Application do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") == nil
   end
+
+  defp client_id do
+  Application.fetch_env!(:telemetrix, :mqtt)[:client_id]
+end
 end

@@ -38,8 +38,9 @@ defmodule TelemetrixWeb.Layouts do
       </div>
 
       <nav class="flex items-center gap-4">
-        <.link navigate_redi={~p"/"} class="text-base-content/80 hover:text-primary transition font-medium">Home</.link>
+        <.link navigate={~p"/"} class="text-base-content/80 hover:text-primary transition font-medium">Home</.link>
         <.link navigate={~p"/dashboard"} class="text-base-content/80 hover:text-primary transition font-medium">Dashboard</.link>
+        <.link navigate={~p"/subscriptions"} class="text-base-content/80 hover:text-primary transition font-medium">Subscriptions</.link>
         <.theme_toggle />
       </nav>
     </header>

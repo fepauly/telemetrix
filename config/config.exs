@@ -13,6 +13,9 @@ import Config
 config :telemetrix,
   ecto_repos: [Telemetrix.Repo]
 
+config :telemetrix, :mqtt,
+  client_id: "telemetrix_mqtt_client"
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
