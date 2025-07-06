@@ -1,0 +1,42 @@
+<Layouts.app flash={@flash}>
+<div class="container mx-auto p-8">
+    <div class="bg-base-100 rounded-xl shadow p-6 mb-6">
+        <h1 class="text-2xl font-bold text-primary mb-2">IoT Sensor Dashboard</h1>
+        <p class="text-base-content/70 mb-0">Live-Updates of sensor data from your devices.</p>
+    </div>
+
+    <form phx-change="filter" class="flex flex-wrap gap-2 mb-6">
+        <input type="text" name="device_id" value={@device_filter} placeholder="Device ID"
+            class="input input-bordered w-32" />
+        <input type="text" name="type" value={@type_filter} placeholder="Type"
+            class="input input-bordered w-32" />
+    </form>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-base-100 rounded-xl shadow text-sm">
+            <thead>
+                <tr class="bg-base-200">
+                <th class="py-2 px-4 font-semibold text-center">Timestamp</th>
+                <th class="py-2 px-4 font-semibold text-center">Device ID</th>
+                <th class="py-2 px-4 font-semibold text-center">Type</th>
+                <th class="py-2 px-4 font-semibold text-center">Value</th>
+                </tr>
+            </thead>
+            <tbody id="sensor-readings" phx-update="stream">
+                <tr id="sensor-readings-empty" class="only:block hidden">
+                <td colspan="4" class="py-6 text-center text-base-content/50">No data found</td>
+                </tr>
+                <tr
+                :for={{dom_id, sr} <- @streams.sensor_readings}
+                id={dom_id}
+                class="hover:bg-base-200 even:bg-base-100 transition"
+                >
+                <td class="py-2 px-4 text-center"><%= format_timestamp(sr.timestamp) %></td>
+                <td class="py-2 px-4 text-center">{sr.device_id}</td>
+                <td class="py-2 px-4 text-center">{sr.type}</td>
+                <td class="py-2 px-4 text-center">{sr.value}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</Layouts.app>

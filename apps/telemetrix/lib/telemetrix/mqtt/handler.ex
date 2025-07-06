@@ -22,10 +22,12 @@ defmodule Telemetrix.MQTT.Handler do
     case parse_payload(payload) do
       {:ok, value, timestamp} ->
           case SensorReadings.ingest(device_id, type, value, timestamp) do
-            {:ok, _reading} -> :ok
+            {:ok, reading} ->
+              Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
             {:error, changeset} ->
               Logger.error("[DB][ERROR] #{inspect(changeset)} | #{device_id}/#{type}")
           end
+
 
       {:error, reason} ->
         Logger.error("[MQTT][ERROR] #{reason} | #{inspect(payload)}")
