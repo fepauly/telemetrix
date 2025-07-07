@@ -40,7 +40,7 @@ defmodule Telemetrix.MQTT.Handler do
             end
 
           {:error, reason} ->
-            Logger.error("[MQTT] Invalid payload: #{reason} | #{inspect(payload)}")
+            Logger.error("[MQTT] Invalid payload: #{inspect(reason)} | #{inspect(payload)}")
         end
 
       _ ->
@@ -67,8 +67,8 @@ defmodule Telemetrix.MQTT.Handler do
   defp parse_payload(payload) do
     case Jason.decode(payload) do
       {:ok, %{"value" => value, "timestamp" => ts}} ->
-        case DateTime.from_iso8601(ts) do
-          {:ok, dt, _} -> {:ok, value, dt}
+        case DateTime.from_unix(trunc(ts)) do
+          {:ok, dt} -> {:ok, value, dt}
           error -> {:error, {:invalid_timestamp, error}}
         end
 

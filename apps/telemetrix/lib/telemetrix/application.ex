@@ -18,8 +18,15 @@ defmodule Telemetrix.Application do
       # {Telemetrix.Worker, arg}
       {Tortoise.Connection,
       [
-        client_id: client_id(),
-        server: {Tortoise.Transport.Tcp, host: "localhost", port: 1883},
+        client_id: Application.get_env(:telemetrix, Telemetrix.MQTT)[:client_id],
+        server: {Tortoise.Transport.SSL,
+          host: Application.get_env(:telemetrix, Telemetrix.MQTT)[:host],
+          port: Application.get_env(:telemetrix, Telemetrix.MQTT)[:port],
+          cacertfile: Application.get_env(:telemetrix, Telemetrix.MQTT)[:ca_certfile],
+          verify: :verify_peer
+        },
+        user_name: Application.get_env(:telemetrix, Telemetrix.MQTT)[:username],
+        password: Application.get_env(:telemetrix, Telemetrix.MQTT)[:password],
         handler: {Telemetrix.MQTT.Handler, []},
         subscriptions: []
       ]
@@ -34,8 +41,4 @@ defmodule Telemetrix.Application do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") == nil
   end
-
-  defp client_id do
-  Application.fetch_env!(:telemetrix, :mqtt)[:client_id]
-end
 end

@@ -95,6 +95,6 @@ defmodule Telemetrix.Subscriptions.SubscriptionManager do
   end
 
   defp client_id do
-  Application.fetch_env!(:telemetrix, :mqtt)[:client_id]
+  Application.fetch_env!(:telemetrix, Telemetrix.MQTT)[:client_id]
   end
 end
