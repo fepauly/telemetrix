@@ -33,3 +33,6 @@ bun.lockb
 mosquitto/*.key
 mosquitto/*.pem
 mosquitto/mosquitto_passwd
+
+.env
+generateTestdata.sh

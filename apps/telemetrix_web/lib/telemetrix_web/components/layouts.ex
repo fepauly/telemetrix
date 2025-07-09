@@ -33,7 +33,6 @@ defmodule TelemetrixWeb.Layouts do
     ~H"""
     <header class="flex items-center justify-between px-6 py-4 bg-base-200 shadow-sm">
       <div class="flex items-center gap-2">
-        <img src={~p"/images/logo.svg"} width="32" />
         <span class="text-lg font-bold tracking-tight text-primary">Telemetrix</span>
       </div>
 
@@ -45,10 +44,8 @@ defmodule TelemetrixWeb.Layouts do
       </nav>
     </header>
 
-    <main class="px-4 py-8 sm:px-8 lg:px-0">
-      <div class="mx-auto max-w-3xl space-y-4">
-        {render_slot(@inner_block)}
-      </div>
+    <main class="w-full min-h-screen">
+      {render_slot(@inner_block)}
     </main>
 
     <.flash_group flash={@flash} />

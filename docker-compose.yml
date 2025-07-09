@@ -11,3 +11,14 @@ services:
       - ./mosquitto/mosquitto.pem:/mosquitto/config/mosquitto.pem
       - /home/flixbus/.local/share/mkcert/rootCA.pem:/mosquitto/config/rootCA.pem
       - ./mosquitto/mosquitto-key.pem:/mosquitto/config/mosquitto-key.pem
+  
+  postgres:
+    image: postgres:16
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+volumes:
+  pgdata:

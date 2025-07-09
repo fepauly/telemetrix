@@ -8,7 +8,7 @@ defmodule Telemetrix.SensorReadings do
     |> Repo.insert()
   end
 
-  def list_sensor_readings(limit \\ 50, device_id \\ nil, type \\ nil) do
+  def list_sensor_readings(limit \\ 20, device_id \\ nil, type \\ nil) do
     import Ecto.Query, only: [from: 2]
 
     query = from sr in SensorReading, order_by: [desc: sr.inserted_at], limit: ^limit
@@ -18,6 +18,16 @@ defmodule Telemetrix.SensorReadings do
 
     query =
       if type, do: from(sr in query, where: like(sr.type, ^"%#{type}%")), else: query
+
+    Repo.all(query)
+  end
+
+  def list_device_id_types_unique() do
+    import Ecto.Query
+    query =
+      from sr in SensorReading,
+        select: {sr.device_id, sr.type},
+        distinct: true
 
     Repo.all(query)
   end
