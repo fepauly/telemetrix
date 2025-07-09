@@ -38,8 +38,11 @@ defmodule TelemetrixWeb.DashboardLive.Index do
     new_topic = "#{reading.device_id}/#{reading.type}"
 
     topic_option_values = Enum.map(topic_options, fn {_, v} -> v end)
+    updated_topic_options =
     if new_topic not in topic_option_values do
-      topic_options = [{new_topic, new_topic} | topic_options]
+      [{new_topic, new_topic} | topic_options]
+    else
+      topic_options
     end
 
 
@@ -57,13 +60,13 @@ defmodule TelemetrixWeb.DashboardLive.Index do
       {:noreply,
         socket
         |> assign(:chart_data, Enum.reverse(new_chart_data))
-        |> assign(:topic_options, topic_options)
+        |> assign(:topic_options, updated_topic_options)
         |> stream_insert(:sensor_readings, reading, at: 0, limit: @stream_limit)
       }
     else
       {:noreply,
       socket
-      |> assign(:topic_options, topic_options)
+      |> assign(:topic_options, updated_topic_options)
       |> stream_insert(:sensor_readings, reading, at: 0, limit: @stream_limit)
     }
     end
