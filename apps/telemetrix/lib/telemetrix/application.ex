@@ -11,22 +11,28 @@ defmodule Telemetrix.Application do
     children = [
       Telemetrix.Repo,
       {Ecto.Migrator,
-       repos: Application.fetch_env!(:telemetrix, :ecto_repos), skip: skip_migrations?()},
+      repos: Application.fetch_env!(:telemetrix, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:telemetrix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Telemetrix.PubSub},
       # Start a worker by calling: Telemetrix.Worker.start_link(arg)
       # {Telemetrix.Worker, arg}
       {Tortoise.Connection,
-        [
-          client_id: "telemetrix_dev",
-          server: {Tortoise.Transport.Tcp, host: "localhost", port: 1883},
-          handler: {Telemetrix.MQTT.Handler, []},
-          subscriptions: [
-            {"esp32/+/sensor/#", 0}
-          ]
-        ]
-      }
-    ]
+      [
+        client_id: Application.get_env(:telemetrix, Telemetrix.MQTT)[:client_id],
+        server: {Tortoise.Transport.SSL,
+          host: Application.get_env(:telemetrix, Telemetrix.MQTT)[:host],
+          port: Application.get_env(:telemetrix, Telemetrix.MQTT)[:port],
+          cacertfile: Application.get_env(:telemetrix, Telemetrix.MQTT)[:ca_certfile],
+          verify: :verify_peer
+        },
+        user_name: Application.get_env(:telemetrix, Telemetrix.MQTT)[:username],
+        password: Application.get_env(:telemetrix, Telemetrix.MQTT)[:password],
+        handler: {Telemetrix.MQTT.Handler, []},
+        subscriptions: []
+      ]
+    },
+    Telemetrix.Subscriptions.SubscriptionManager
+  ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Telemetrix.Supervisor)
   end

@@ -19,6 +19,7 @@ defmodule TelemetrixWeb.Router do
 
     live "/", HomeLive.Index, :index
     live "/dashboard", DashboardLive.Index, :index
+    live "/subscriptions", SubscriptionsLive.Index, :index
   end
 
   # Other scopes may use custom stacks.

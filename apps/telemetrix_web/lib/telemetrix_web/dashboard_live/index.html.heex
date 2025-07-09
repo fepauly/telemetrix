@@ -1,42 +1,86 @@
 <Layouts.app flash={@flash}>
-<div class="container mx-auto p-8">
-    <div class="bg-base-100 rounded-xl shadow p-6 mb-6">
+  <div class="w-full min-h-screen bg-base-200 p-6">
+    <div class="max-w-[1800px] mx-auto">
+      <!-- Header -->
+      <div class="bg-base-100 rounded-xl shadow p-6 mb-6">
         <h1 class="text-2xl font-bold text-primary mb-2">IoT Sensor Dashboard</h1>
         <p class="text-base-content/70 mb-0">Live-Updates of sensor data from your devices.</p>
-    </div>
+      </div>
 
-    <form phx-change="filter" class="flex flex-wrap gap-2 mb-6">
-        <input type="text" name="device_id" value={@device_filter} placeholder="Device ID"
-            class="input input-bordered w-32" />
-        <input type="text" name="type" value={@type_filter} placeholder="Type"
-            class="input input-bordered w-32" />
-    </form>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-base-100 rounded-xl shadow text-sm">
-            <thead>
-                <tr class="bg-base-200">
-                <th class="py-2 px-4 font-semibold text-center">Timestamp</th>
-                <th class="py-2 px-4 font-semibold text-center">Device ID</th>
-                <th class="py-2 px-4 font-semibold text-center">Type</th>
-                <th class="py-2 px-4 font-semibold text-center">Value</th>
-                </tr>
-            </thead>
-            <tbody id="sensor-readings" phx-update="stream">
-                <tr id="sensor-readings-empty" class="only:block hidden">
-                <td colspan="4" class="py-6 text-center text-base-content/50">No data found</td>
-                </tr>
-                <tr
-                :for={{dom_id, sr} <- @streams.sensor_readings}
-                id={dom_id}
-                class="hover:bg-base-200 even:bg-base-100 transition"
-                >
-                <td class="py-2 px-4 text-center"><%= format_timestamp(sr.timestamp) %></td>
-                <td class="py-2 px-4 text-center">{sr.device_id}</td>
-                <td class="py-2 px-4 text-center">{sr.type}</td>
-                <td class="py-2 px-4 text-center">{sr.value}</td>
-                </tr>
-            </tbody>
-        </table>
+      <!-- Flex Layout for Content + Sidebar -->
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Left Column -->
+        <div class="flex-1 min-w-0">
+          <!-- Dropdown -->
+          <div class="flex flex-wrap gap-4 items-end mb-6">
+            <!-- Chart Topic Dropdown -->
+            <form phx-change="select_topic">
+              <select name="topic" class="select select-bordered w-48 ml-4">
+                <option value="">Wähle Topic für Chart</option>
+                <%= for {label, value} <- @topic_options do %>
+                  <option value={value} selected={@selected_topic == value}><%= label %></option>
+                <% end %>
+              </select>
+            </form>
+          </div>
+          <!-- Chart -->
+          <%= if @selected_topic do %>
+            <div class="bg-base-100 rounded-xl shadow p-6 mb-6 flex flex-col items-center">
+              <h2 class="text-xl font-semibold mb-4">
+                Device ID: <%= @selected_device_id %> &nbsp; | &nbsp; Type: <%= @selected_topic %>
+              </h2>
+              <.live_component
+                module={TelemetrixWeb.ChartComponent}
+                id="chart-container"
+                chart_data={@chart_data}
+              />
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Right Sidebar (table) -->
+        <div class="lg:w-96 w-full">
+          <div class="bg-base-100 rounded-xl shadow p-4">
+            <h3 class="text-lg font-semibold mb-4 text-primary">Live-Data</h3>
+            <div class="flex flex-wrap gap-4 items-end mb-6">
+              <!-- Filter-Formular -->
+              <form phx-change="filter" class="flex flex-wrap gap-2">
+                <input type="text" name="device_id" value={@device_filter} placeholder="Device ID"
+                  class="input input-bordered w-32" />
+                <input type="text" name="type" value={@type_filter} placeholder="Type"
+                  class="input input-bordered w-32" />
+              </form>
+            </div>
+            <div class="overflow-x-auto max-h-[70vh]">
+              <table class="min-w-full bg-base-100 rounded-xl text-sm">
+                <thead>
+                  <tr class="bg-base-200 sticky top-0 z-10">
+                    <th class="py-2 px-4 font-semibold text-center">Timestamp</th>
+                    <th class="py-2 px-4 font-semibold text-center">Device ID</th>
+                    <th class="py-2 px-4 font-semibold text-center">Type</th>
+                    <th class="py-2 px-4 font-semibold text-center">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="sensor-readings" phx-update="stream">
+                  <tr id="sensor-readings-empty" class="only:block hidden">
+                    <td colspan="4" class="py-6 text-center text-base-content/50">No data found</td>
+                  </tr>
+                  <tr
+                    :for={{dom_id, sr} <- @streams.sensor_readings}
+                    id={dom_id}
+                    class="hover:bg-base-200 even:bg-base-100 transition"
+                  >
+                    <td class="py-2 px-4 text-center"><%= format_timestamp(sr.timestamp) %></td>
+                    <td class="py-2 px-4 text-center">{sr.device_id}</td>
+                    <td class="py-2 px-4 text-center">{sr.type}</td>
+                    <td class="py-2 px-4 text-center">{sr.value}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 </Layouts.app>

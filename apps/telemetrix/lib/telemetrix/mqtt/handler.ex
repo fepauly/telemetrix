@@ -18,26 +18,35 @@ defmodule Telemetrix.MQTT.Handler do
     {:ok, state}
   end
 
-  def handle_message(["esp32", device_id, "sensor", type], payload, state) do
-    case parse_payload(payload) do
-      {:ok, value, timestamp} ->
-          case SensorReadings.ingest(device_id, type, value, timestamp) do
-            {:ok, reading} ->
-              Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
-            {:error, changeset} ->
-              Logger.error("[DB][ERROR] #{inspect(changeset)} | #{device_id}/#{type}")
-          end
-
-
-      {:error, reason} ->
-        Logger.error("[MQTT][ERROR] #{reason} | #{inspect(payload)}")
+  def handle_message(topic, payload, state) do
+    parts =
+    case topic do
+      t when is_binary(t) -> String.split(t, "/")
+      t when is_list(t) -> t
     end
 
-    {:ok, state}
-  end
+    case parts do
+      [device_id | rest] when length(rest) >= 1 ->
+        type = List.last(rest)
 
-  def handle_message(topic_levels, payload, state) do
-    # We ingnore any other topic for now
+        case parse_payload(payload) do
+          {:ok, value, timestamp} ->
+            case SensorReadings.ingest(device_id, type, value, timestamp) do
+              {:ok, reading} ->
+                Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
+
+              {:error, changeset} ->
+                Logger.error("[DB] #{inspect(changeset)} | #{device_id}/#{type}")
+            end
+
+          {:error, reason} ->
+            Logger.error("[MQTT] Invalid payload: #{inspect(reason)} | #{inspect(payload)}")
+        end
+
+      _ ->
+        Logger.error("[MQTT] Unexepected topic format: #{inspect(topic)}")
+    end
+
     {:ok, state}
   end
 
@@ -58,8 +67,8 @@ defmodule Telemetrix.MQTT.Handler do
   defp parse_payload(payload) do
     case Jason.decode(payload) do
       {:ok, %{"value" => value, "timestamp" => ts}} ->
-        case DateTime.from_iso8601(ts) do
-          {:ok, dt, _} -> {:ok, value, dt}
+        case DateTime.from_unix(trunc(ts)) do
+          {:ok, dt} -> {:ok, value, dt}
           error -> {:error, {:invalid_timestamp, error}}
         end
 

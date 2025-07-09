@@ -8,7 +8,7 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
-
+/apps/telemetrix/priv/certs/mosquitto.crt
 
 .vscode/
 *.db
@@ -29,3 +29,10 @@ bench/bench
 deno.lock
 bun.lockb
 .DS_Store
+
+mosquitto/*.key
+mosquitto/*.pem
+mosquitto/mosquitto_passwd
+
+.env
+generateTestdata.sh

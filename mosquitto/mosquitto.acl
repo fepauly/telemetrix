@@ -1,0 +1,7 @@
+user telemetrix
+topic read #
+topic write telemetrix/+
+
+user esp32home
+topic write esp32/+
+topic read telemetrix/+

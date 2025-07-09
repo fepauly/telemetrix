@@ -13,6 +13,14 @@ import Config
 config :telemetrix,
   ecto_repos: [Telemetrix.Repo]
 
+config :telemetrix, Telemetrix.MQTT,
+  client_id: "telemetrix_mqtt_client",
+  username: System.get_env("MQTT_USERNAME") || "telemetrix",
+  password: System.get_env("MQTT_PASSWORD") || "",
+  ca_certfile: System.get_env("MQTT_CAFILE") || "priv/certs/mosquitto.crt",
+  host: System.get_env("MQTT_HOST") || "localhost",
+  port: 8883
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
