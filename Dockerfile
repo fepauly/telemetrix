@@ -25,6 +25,10 @@ COPY apps apps
 RUN mix deps.get --only prod
 RUN mix deps.compile
 
+# Install packages
+COPY apps/telemetrix_web/assets/package*.json ./apps/telemetrix_web/assets/
+RUN cd apps/telemetrix_web/assets && npm install
+
 # Copy assets
 COPY apps/telemetrix_web/assets ./apps/telemetrix_web/assets
 COPY apps/telemetrix_web/priv ./apps/telemetrix_web/priv

@@ -26,7 +26,7 @@ if [ ! -f ".env" ]; then
     # Generate Phoenix secret key
     if command -v mix &> /dev/null; then
         echo "Generating SECRET_KEY_BASE..."
-        SECRET_KEY=$(mix phx.gen.secret)
+        SECRET_KEY=$(openssl rand -base64 64)
         # Replace placeholder in .env file
         sed -i "s/SECRET_KEY_BASE=changeme_generate_with_mix_phx_gen_secret/SECRET_KEY_BASE=$SECRET_KEY/" .env
         echo "SECRET_KEY_BASE has been generated and added to .env"
