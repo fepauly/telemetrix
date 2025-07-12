@@ -8,7 +8,15 @@ defmodule Telemetrix.Umbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      releases: [
+        telemetrix_umbrella: [
+          applications: [
+            telemetrix: :permanent,
+            telemetrix_web: :permanent
+          ]
+        ]
+      ]
     ]
   end
 

@@ -11,7 +11,28 @@ erl_crash.dump
 /apps/telemetrix/priv/certs/mosquitto.crt
 
 .vscode/
-*.db
+
+# Zertifikate, Schlüssel und CA-Dateien (niemals ins Repo!)
+certs/*
+mosquitto/*.pem
+mosquitto/*.key
+mosquitto/*.crt
+mosquitto/rootCA.pem
+mosquitto/mosquitto_passwd
+apps/telemetrix/priv/certs/*
+
+# mkcert CA (lokal, nicht ins Repo)
+*.pem
+*.key
+*.crt
+
+
+# Umgebungsdateien (nur echte Secrets ignorieren)
+.env
+
+
+# Hilfsskripte und .env.example gehören ins Repo (Showcase!)
+
 *.bat
 *.exp
 *.pdb
@@ -31,8 +52,3 @@ bun.lockb
 .DS_Store
 
 mosquitto/*.key
-mosquitto/*.pem
-mosquitto/mosquitto_passwd
-
-.env
-generateTestdata.sh

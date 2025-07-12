@@ -1,24 +1,72 @@
 services:
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certs/dashboard.local.pem:/etc/nginx/ssl/dashboard.local.pem
+      - ./certs/dashboard.local-key.pem:/etc/nginx/ssl/dashboard.local-key.pem
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - telemetrix
+    networks:
+      - telemetrix_network
+    extra_hosts:
+      - "dashboard.local:127.0.0.1"
+    
+  telemetrix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=4000
+      - PHX_HOST=dashboard.local
+      - DATABASE_URL=ecto://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - POOL_SIZE=10
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=8883
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_USE_TLS=true
+    depends_on:
+      - postgres
+      - mosquitto
+    networks:
+      - telemetrix_network
+
   mosquitto:
     image: eclipse-mosquitto
+    restart: unless-stopped
     ports:
-      - "1883:1883"
       - "8883:8883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/mosquitto_passwd:/mosquitto/config/mosquitto_passwd
       - ./mosquitto/mosquitto.acl:/mosquitto/config/mosquitto.acl
       - ./mosquitto/mosquitto.pem:/mosquitto/config/mosquitto.pem
-      - /home/flixbus/.local/share/mkcert/rootCA.pem:/mosquitto/config/rootCA.pem
+      - ./mosquitto/rootCA.pem:/mosquitto/config/rootCA.pem
       - ./mosquitto/mosquitto-key.pem:/mosquitto/config/mosquitto-key.pem
+    networks:
+      - telemetrix_network
   
   postgres:
     image: postgres:16
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - telemetrix_network
 volumes:
   pgdata:
+
+networks:
+  telemetrix_network:
+    driver: bridge

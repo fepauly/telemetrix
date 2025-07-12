@@ -34,14 +34,35 @@ import Config
       You can generate one by calling: mix phx.gen.secret
       """
 
+  host = System.get_env("PHX_HOST") || "dashboard.local"
+  port = String.to_integer(System.get_env("PORT") || "4000")
   config :telemetrix_web, TelemetrixWeb.Endpoint,
+    url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: String.to_integer(System.get_env("PORT") || "4000")
+      port: port
     ],
-    secret_key_base: secret_key_base
+    secret_key_base: secret_key_base,
+    server: true
+
+  # MQTT Configuration
+  mqtt_host = System.get_env("MQTT_HOST") || "localhost"
+  mqtt_port = String.to_integer(System.get_env("MQTT_PORT") || "8883")
+  mqtt_username = System.get_env("MQTT_USERNAME")
+  mqtt_password = System.get_env("MQTT_PASSWORD")
+  mqtt_use_tls = System.get_env("MQTT_USE_TLS") == "true"
+  mqtt_ca_certfile = System.get_env("MQTT_CAFILE") || "/app/priv/certs/mosquitto.crt"
+
+  config :telemetrix, Telemetrix.MQTT,
+    host: mqtt_host,
+    port: mqtt_port,
+    username: mqtt_username,
+    password: mqtt_password,
+    use_tls: mqtt_use_tls,
+    ca_certfile: mqtt_ca_certfile,
+    client_id: "telemetrix_server_#{:rand.uniform(999_999_999)}"
 
   # ## Using releases
   #
