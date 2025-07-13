@@ -120,35 +120,35 @@ cd ansible
 ansible-playbook -i inventory.yml deploy.yml --ask-vault-pass
 ```
 
-## Post-Deployment Steps
+## Connecting External Devices to MQTT
 
-### 1. Update Local Hosts File
+### Connecting from ESP32 or Other IoT Devices
 
-Add the Raspberry Pi's IP to your hosts file:
+To connect your ESP32 or other IoT devices to the MQTT broker running on your Raspberry Pi:
 
-Linux/Mac:
+1. **Use the correct hostname**: Use the Raspberry Pi's IP address or hostname (e.g., `dashboard.local`) when connecting.
+
+2. **Install the Root CA certificate**: Your IoT device will need the Root CA certificate to establish a secure connection:
+
+3. **Configure port and credentials**: Use port 8883 (TLS) and the credentials you configured in the Mosquitto password file.
+
+### Testing MQTT Connectivity
+
+Use the provided test script to verify connectivity from your development machine:
+
 ```bash
-sudo echo "192.168.x.x dashboard.local" >> /etc/hosts
+# Install mosquitto clients if needed
+sudo apt install mosquitto-clients
+
+# Set required environment variables
+export MQTT_PASSWORD=your_mqtt_password
+export MQTT_HOST=dashboard.local
+
+# Run the test script
+./scripts/generateTestdata.sh
 ```
 
-Windows:
-Edit `C:\Windows\System32\drivers\etc\hosts` and add:
-```
-192.168.x.x dashboard.local
-```
-
-### 2. Install Root CA on Client Devices
-
-For secure MQTT and web access, install the root CA certificate on your client devices.
-
-Follow your OS instructions to install this CA certificate.
-
-### 3. Access the Dashboard
-
-Open your browser and navigate to:
-```
-https://dashboard.local
-```
+If you encounter certificate validation issues, make sure your computer trusts the Root CA.
 
 ## Troubleshooting
 

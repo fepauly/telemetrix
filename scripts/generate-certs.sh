@@ -19,8 +19,8 @@ echo "Generating certificates for the web app (url dashboard.local)..."
 mkcert -cert-file certs/dashboard.local.pem -key-file certs/dashboard.local-key.pem dashboard.local
 
 # Generate certificates for MQTT
-echo "Generating certificates for MQTT (host mosquitto)..."
-mkcert -cert-file mosquitto/mosquitto.pem -key-file mosquitto/mosquitto-key.pem mosquitto localhost
+echo "Generating certificates for MQTT..."
+mkcert -cert-file mosquitto/mosquitto.pem -key-file mosquitto/mosquitto-key.pem mosquitto localhost dashboard.local 127.0.0.1 192.168.2.55
 
 echo "SSL certificates have been successfully generated:"
 echo "Web application:"

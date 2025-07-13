@@ -47,7 +47,7 @@ services:
       - "8883:8883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./mosquitto/mosquitto_passwd:/mosquitto/config/mosquitto_passwd
+      - ./mosquitto/mosquitto_passwd:/mosquitto/config/mosquitto_passwd:ro
       - ./mosquitto/mosquitto.acl:/mosquitto/config/mosquitto.acl
       - ./mosquitto/mosquitto.pem:/mosquitto/config/mosquitto.pem
       - ./mosquitto/rootCA.pem:/mosquitto/config/rootCA.pem

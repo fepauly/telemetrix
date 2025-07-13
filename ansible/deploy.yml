@@ -33,17 +33,18 @@
         - certs
         - mosquitto
 
-    - name: Copy certificates from local to Raspberry Pi
+    - name: Copy mosquitto_passwd and certificates from local to Raspberry Pi
       copy:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
-        mode: '0644'
+        mode: "{{ item.mode | default('0644') }}"
       loop:
         - { src: '../certs/dashboard.local.pem', dest: '{{ app_dir }}/certs/dashboard.local.pem' }
         - { src: '../certs/dashboard.local-key.pem', dest: '{{ app_dir }}/certs/dashboard.local-key.pem' }
         - { src: '../mosquitto/mosquitto.pem', dest: '{{ app_dir }}/mosquitto/mosquitto.pem' }
         - { src: '../mosquitto/mosquitto-key.pem', dest: '{{ app_dir }}/mosquitto/mosquitto-key.pem' }
         - { src: '../mosquitto/rootCA.pem', dest: '{{ app_dir }}/mosquitto/rootCA.pem' }
+        - { src: '../mosquitto/mosquitto_passwd', dest: '{{ app_dir }}/mosquitto/', mode: '0600' }
 
     - name: Create .env from template
       template:

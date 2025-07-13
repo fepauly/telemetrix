@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Script to run test publish to mqtt broker
-HOST="localhost"  # running from localhost
-PORT=8883         
-USER="esp32home"
+HOST=${MQTT_HOST:-"dashboard.local"}  # Default to dashboard.local if not set
+PORT=${MQTT_PORT:-"8883"}             # Default to 8883 if not set
+USER=${MQTT_USERNAME:-"esp32home"}    # Default to esp32home if not set (my local setup)
 PASS=${MQTT_PASSWORD}
-CAFILE=${MQTT_CAFILE}
-TOPIC="esp32/force"
-COUNT=5
+CAFILE=${MQTT_CAFILE:-"./mosquitto/rootCA.pem"}
+TOPIC=${MQTT_TOPIC:-"esp32/force"}
+COUNT=${MQTT_COUNT:-5}     
 
 echo "Send $COUNT test message to $HOST:$PORT"
 echo "Topic: $TOPIC"
