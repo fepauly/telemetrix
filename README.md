@@ -4,6 +4,10 @@
 
 This application enables your embedded devices in your home setup to publish data that you can monitor via the Telemetrix Web App.
 
+## Demo
+
+![Telemetrix Demo](demo/demo.gif)
+
 ## Features
 
 - **Real-Time Data Visualization**: Monitor sensor data in real time using Phoenix LiveView
