@@ -65,7 +65,7 @@ COPY ./mosquitto/rootCA.pem /app/priv/certs/mosquitto.crt
 
 
 # Copy entrypoint script
-COPY entrypoint.sh /app/
+COPY scripts/entrypoint.sh /app/
 
 # Set command to start the server
 CMD ["/app/entrypoint.sh"]

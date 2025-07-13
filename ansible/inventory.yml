@@ -1,0 +1,6 @@
+all:
+  hosts:
+    raspberrypi:
+      ansible_host: 192.168.2.55
+      ansible_user: fe-pa
+      ansible_ssh_private_key_file: ~/.ssh/id_ed25519
