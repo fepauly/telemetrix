@@ -16,6 +16,14 @@ This application enables your embedded devices in your home setup to publish dat
 - **Dockerized Setup**: Easy deployment using Docker and Docker Compose
 - **Ansible Automation**: Streamlined deployment to Raspberry Pi
 
+## Planned Features
+
+- Expanding Dashboard UI with advanced monitoring/graph features
+- Sending commands/actions to IoT devices
+- Data Export
+- and many more :smile:
+
+
 ## Quick Start
 
 ### Local Development
