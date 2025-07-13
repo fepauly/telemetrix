@@ -1,0 +1,69 @@
+- name: Deploy Telemetrix to Raspberry Pi
+  hosts: raspberrypi
+  become: true
+  vars_files:
+    - secrets.yml
+  vars:
+    app_dir: /home/fe-pa/telemetrix
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - git
+          - mkcert
+        state: present
+        update_cache: yes
+
+    - name: Clone/update repository
+      git:
+        repo: https://github.com/fepauly/telemetrix.git
+        dest: "{{ app_dir }}"
+        version: main
+        update: yes
+    
+    - name: Create directories for certificates
+      file:
+        path: "{{ app_dir }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - certs
+        - mosquitto
+
+    - name: Copy certificates from local to Raspberry Pi
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: '../certs/dashboard.local.pem', dest: '{{ app_dir }}/certs/dashboard.local.pem' }
+        - { src: '../certs/dashboard.local-key.pem', dest: '{{ app_dir }}/certs/dashboard.local-key.pem' }
+        - { src: '../mosquitto/mosquitto.pem', dest: '{{ app_dir }}/mosquitto/mosquitto.pem' }
+        - { src: '../mosquitto/mosquitto-key.pem', dest: '{{ app_dir }}/mosquitto/mosquitto-key.pem' }
+        - { src: '../mosquitto/rootCA.pem', dest: '{{ app_dir }}/mosquitto/rootCA.pem' }
+
+    - name: Create .env from template
+      template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        mode: "0644"
+    
+    - name: Stop running docker containers
+      community.docker.docker_compose:
+        project_src: "{{ app_dir }}"
+        state: absent
+      ignore_errors: true
+
+    - name: Build and start Docker containers
+      community.docker.docker_compose:
+        project_src: "{{ app_dir }}"
+        build: yes
+        state: present
+      register: docker_result
+    
+    - name: Show docker compose output
+      debug:
+        var: docker_result
