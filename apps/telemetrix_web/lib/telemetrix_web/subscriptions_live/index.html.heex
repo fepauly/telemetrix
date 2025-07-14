@@ -1,58 +1,123 @@
 <Layouts.app flash={@flash}>
-  <div class="w-full min-h-screen bg-base-200 p-6 flex flex-col items-center">
-    <div class="bg-base-100 rounded-xl shadow p-8 mb-6 w-full max-w-2xl">
-      <h2 class="text-2xl font-bold mb-6 text-primary text-center tracking-tight">MQTT Subscriptions</h2>
-
-      <%= if @error do %>
-        <div class="flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 mb-4 rounded-xl border border-red-200 animate-pulse">
-          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span><%= @error %></span>
+  <div class="w-full min-h-screen bg-base-200 p-4 md:p-6">
+    <div class="max-w-[1800px] mx-auto">
+      <!-- Header -->
+      <div class="bg-base-100 rounded-xl shadow-md p-5 mb-6 border border-base-300/30">
+        <div class="flex items-center">
+          <div class="mr-4 bg-primary/10 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18m-7 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-primary mb-1">MQTT Subscriptions</h1>
+            <p class="text-base-content/70 mb-0">Manage your IoT device subscriptions.</p>
+          </div>
         </div>
-      <% end %>
+      </div>
 
-      <form phx-submit="add_topic" class="flex flex-wrap gap-3 mb-7">
-        <input type="text"
-               name="topic"
-               value={@new_topic}
-               phx-change="update_new_topic"
-               class="flex-1 input input-bordered"
-               placeholder="MQTT Topic (z.B. esp32-001/temp1)" autocomplete="off" />
-        <button class="btn btn-primary flex items-center gap-2" type="submit">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4v16m8-8H4"/>
-          </svg>
-          Add
-        </button>
-      </form>
+      <!-- Main Content -->
+      <div class="flex justify-center">
+        <div class="bg-base-100 rounded-xl shadow-md p-6 w-full max-w-2xl border border-base-300/30">
+          
+          <%= if @error do %>
+            <div class="flex items-center gap-3 bg-error/10 text-error px-4 py-3 mb-5 rounded-lg border border-error/20">
+              <.icon name="hero-exclamation-circle-micro" class="h-5 w-5 shrink-0" />
+              <span class="text-sm font-medium"><%= @error %></span>
+            </div>
+          <% end %>
 
-      <div class="bg-base-100 rounded-2xl shadow border border-base-200">
-        <ul class="divide-y divide-base-200">
-          <%= for topic <- @topics do %>
-            <li class="flex items-center justify-between px-5 py-3 group transition hover:bg-base-200">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <path stroke-linecap="round" stroke-width="2" d="M12 8v4l2.5 2.5"/>
-                </svg>
-                <span class="font-mono text-base-content text-[15px] tracking-tight"><%= topic %></span>
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
+                <.icon name="hero-bell-micro" class="h-4 w-4" />
+                <span>Add New Subscription</span>
+              </h3>
+              
+              <%= if @mqtt_connect do%>
+                <div class="badge badge-accent font-semibold animate-pulse">
+                  <div class="w-2 h-2 rounded-full bg-current mr-1"></div>
+                  Connected
+                </div>
+              <% else %>
+                <div class="badge bg-error/10 text-error font-semibold animate-pulse">
+                  <div class="w-2 h-2 rounded-full bg-current mr-1"></div>
+                  Offline
+                </div>
+              <% end %>
+            </div>
+            
+            <form phx-submit="add_topic" class="flex flex-col sm:flex-row gap-3">
+              <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <.icon name="hero-hashtag-micro" class="h-5 w-5 text-base-content/50" />
+                </div>
+                <input type="text"
+                      name="topic"
+                      value={@new_topic}
+                      phx-change="update_new_topic"
+                      class="input input-bordered w-full pl-10 py-2 bg-base-200/50 border-base-300"
+                      placeholder="MQTT Topic with format '<device-id>/*/<topic>'" autocomplete="off" />
               </div>
-              <button phx-click="remove_topic" phx-value-topic={topic}
-                      class="btn btn-sm btn-error flex items-center gap-1 opacity-80 group-hover:opacity-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Remove
+              <button class="btn btn-primary sm:w-auto w-full flex items-center gap-2 group" type="submit">
+                <.icon name="hero-plus-circle-micro" class="h-5 w-5 transition-transform group-hover:scale-110" />
+                <span>Subscribe</span>
               </button>
-            </li>
-          <% end %>
-          <%= if Enum.empty?(@topics) do %>
-            <li class="px-5 py-5 text-base-content/50 text-center select-none">No topics subscribed yet.</li>
-          <% end %>
-        </ul>
+            </form>
+          </div>
+
+          <div class="bg-base-200/50 rounded-xl overflow-hidden border border-base-300/30">
+            <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+              <h3 class="text-base font-semibold flex items-center gap-2">
+                <.icon name="hero-rss-micro" class="h-4 w-4 text-primary" />
+                <span>Active Subscriptions</span>
+              </h3>
+              <span class="badge badge-primary font-semibold">
+                <%= length(@topics) %>
+              </span>
+            </div>
+            
+            <ul class="divide-y divide-base-300/30">
+              <%= for topic <- @topics do %>
+                <li class="group">
+                  <div class="flex items-center justify-between px-4 py-3 hover:bg-base-300/20 transition-colors">
+                    <div class="flex items-center gap-3">
+                      <%= if @mqtt_connect do %>
+                        <div class="size-2 rounded-full bg-success animate-pulse-subtle"></div>
+                      <% else %>
+                        <div class="size-2 rounded-full bg-error animate-pulse-subtle"></div>
+                      <% end %>
+                      <span class="font-mono text-base-content text-sm tracking-tight"><%= topic %></span>
+                    </div>
+                    <button phx-click="remove_topic" phx-value-topic={topic}
+                            class="btn btn-sm btn-ghost text-error hover:bg-error/10 flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                      <.icon name="hero-trash-micro" class="h-4 w-4" />
+                      <span>Unsubscribe</span>
+                    </button>
+                  </div>
+                </li>
+              <% end %>
+              <%= if Enum.empty?(@topics) do %>
+                <li class="px-5 py-8 text-base-content/50 text-center select-none">
+                  <div class="flex flex-col items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-base-content/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" />
+                    </svg>
+                    <div>
+                      <p class="font-medium mb-1">No active subscriptions</p>
+                      <p class="text-sm">Subscribe to MQTT topics to receive data from your IoT devices.</p>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+          
+          <div class="mt-6 text-center text-sm text-base-content/50">
+            <p>Use wildcards like <code class="px-1.5 py-0.5 bg-base-300 rounded">+</code> for single level or <code class="px-1.5 py-0.5 bg-base-300 rounded">#</code> for multi-level.</p>
+            <p class="mt-1">Example: <code class="px-1.5 py-0.5 bg-base-300 rounded">device01/+/temperature</code> or <code class="px-1.5 py-0.5 bg-base-300 rounded">device02/#</code></p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

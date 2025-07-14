@@ -31,15 +31,29 @@ defmodule TelemetrixWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="flex items-center justify-between px-6 py-4 bg-base-200 shadow-sm">
-      <div class="flex items-center gap-2">
-        <span class="text-lg font-bold tracking-tight text-primary">Telemetrix</span>
+    <header class="flex items-center justify-between px-6 py-3 bg-base-200 shadow-md sticky top-0 z-50">
+      <div class="flex items-center gap-3">
+        <span class="text-xl font-bold tracking-tight text-primary flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Telemetrix
+        </span>
       </div>
 
-      <nav class="flex items-center gap-4">
-        <.link navigate={~p"/"} class="text-base-content/80 hover:text-primary transition font-medium">Home</.link>
-        <.link navigate={~p"/dashboard"} class="text-base-content/80 hover:text-primary transition font-medium">Dashboard</.link>
-        <.link navigate={~p"/subscriptions"} class="text-base-content/80 hover:text-primary transition font-medium">Subscriptions</.link>
+      <nav class="flex items-center gap-6">
+        <.link navigate={~p"/"} class="text-base-content/80 hover:text-primary transition font-medium flex items-center gap-1">
+          <.icon name="hero-home-micro" class="size-4" />
+          <span>Home</span>
+        </.link>
+        <.link navigate={~p"/dashboard"} class="text-base-content/80 hover:text-primary transition font-medium flex items-center gap-1">
+          <.icon name="hero-chart-bar-micro" class="size-4" />
+          <span>Dashboard</span>
+        </.link>
+        <.link navigate={~p"/subscriptions"} class="text-base-content/80 hover:text-primary transition font-medium flex items-center gap-1">
+          <.icon name="hero-bell-micro" class="size-4" />
+          <span>Subscriptions</span>
+        </.link>
         <.theme_toggle />
       </nav>
     </header>
@@ -47,6 +61,10 @@ defmodule TelemetrixWeb.Layouts do
     <main class="w-full min-h-screen">
       {render_slot(@inner_block)}
     </main>
+
+    <footer class="py-4 px-6 bg-base-200 border-t border-base-300 text-center text-sm text-base-content/60">
+      <p>Telemetrix IoT Dashboard © <%= DateTime.utc_now().year %></p>
+    </footer>
 
     <.flash_group flash={@flash} />
     """
@@ -102,29 +120,34 @@ defmodule TelemetrixWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
+    <div class="relative inline-block">
+      <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full shadow-sm hover:shadow transition-shadow">
+        <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left] duration-300 ease-in-out" />
 
-      <button
-        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "system"})}
-        class="flex p-2 cursor-pointer w-1/3"
-      >
-        <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
+        <button
+          phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "system"})}
+          class="flex p-2 cursor-pointer w-1/3 items-center justify-center transition-opacity duration-200"
+          aria-label="System theme"
+        >
+          <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
+        </button>
 
-      <button
-        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "light"})}
-        class="flex p-2 cursor-pointer w-1/3"
-      >
-        <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
+        <button
+          phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "light"})}
+          class="flex p-2 cursor-pointer w-1/3 items-center justify-center transition-opacity duration-200"
+          aria-label="Light theme"
+        >
+          <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
+        </button>
 
-      <button
-        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "dark"})}
-        class="flex p-2 cursor-pointer w-1/3"
-      >
-        <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
-      </button>
+        <button
+          phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "dark"})}
+          class="flex p-2 cursor-pointer w-1/3 items-center justify-center transition-opacity duration-200"
+          aria-label="Dark theme"
+        >
+          <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
+        </button>
+      </div>
     </div>
     """
   end

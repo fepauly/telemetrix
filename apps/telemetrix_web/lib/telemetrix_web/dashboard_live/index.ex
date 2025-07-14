@@ -9,6 +9,7 @@ defmodule TelemetrixWeb.DashboardLive.Index do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Telemetrix.PubSub, "sensor_readings")
+      Telemetrix.MQTT.ConnectionMonitor.subscribe()
     end
 
     readings = SensorReadings.list_sensor_readings(@stream_limit)
@@ -19,6 +20,9 @@ defmodule TelemetrixWeb.DashboardLive.Index do
         {label, label}
       end)
 
+    # Get actual connection status
+    initial_mqtt_status = Telemetrix.MQTT.ConnectionMonitor.connected?()
+
     {:ok,
       socket
       |> assign(:device_filter, nil)
@@ -28,7 +32,19 @@ defmodule TelemetrixWeb.DashboardLive.Index do
       |> assign(:chart_data, nil)
       |> assign(:selected_device_id, nil)
       |> assign(:selected_type, nil)
+      |> assign(:mqtt_connect, initial_mqtt_status)
+      |> assign(:chart_limit, @chart_limit)
       |> stream(:sensor_readings, readings)}
+  end
+
+  @impl true
+  def handle_info(:mqtt_disconnect, socket) do
+    {:noreply, assign(socket, mqtt_connect: false)}
+  end
+
+  @impl true
+  def handle_info(:mqtt_connect, socket) do
+    {:noreply, assign(socket, mqtt_connect: true)}
   end
 
   @impl true
@@ -38,38 +54,45 @@ defmodule TelemetrixWeb.DashboardLive.Index do
     new_topic = "#{reading.device_id}/#{reading.type}"
 
     topic_option_values = Enum.map(topic_options, fn {_, v} -> v end)
+
+    # Determine if we need to update topic options
+    needs_topic_update = new_topic not in topic_option_values
+
     updated_topic_options =
-    if new_topic not in topic_option_values do
-      [{new_topic, new_topic} | topic_options]
-    else
-      topic_options
-    end
+      if needs_topic_update do
+        [{new_topic, new_topic} | topic_options]
+      else
+        topic_options
+      end
 
+    update_chart = selected_topic && new_topic == selected_topic
 
-    if selected_topic &&  new_topic == selected_topic do
-      chart_entry = %{
-        value: reading.value,
-        timestamp: format_timestamp(reading.timestamp)
-      }
+    socket =
+      if update_chart do
+        chart_entry = %{
+          value: reading.value,
+          timestamp: format_timestamp(reading.timestamp)
+        }
 
-      old_chart_data = socket.assigns[:chart_data] || []
-      new_chart_data =
-        [chart_entry | old_chart_data]
-        |> Enum.take(@chart_limit)
+        old_chart_data = socket.assigns[:chart_data] || []
+        new_chart_data =
+          [chart_entry | old_chart_data]
+          |> Enum.take(@chart_limit)
 
-      {:noreply,
         socket
         |> assign(:chart_data, Enum.reverse(new_chart_data))
-        |> assign(:topic_options, updated_topic_options)
-        |> stream_insert(:sensor_readings, reading, at: 0, limit: @stream_limit)
-      }
-    else
-      {:noreply,
-      socket
-      |> assign(:topic_options, updated_topic_options)
-      |> stream_insert(:sensor_readings, reading, at: 0, limit: @stream_limit)
-    }
-    end
+      else
+        socket
+      end
+
+    socket =
+      if needs_topic_update do
+        socket |> assign(:topic_options, updated_topic_options)
+      else
+        socket
+      end
+
+    {:noreply, socket |> stream_insert(:sensor_readings, reading, at: 0, limit: @stream_limit)}
   end
 
   @impl true
@@ -113,6 +136,18 @@ defmodule TelemetrixWeb.DashboardLive.Index do
         }
     end
 
+  end
+
+  @impl true
+  def handle_event("clear_filters", _params, socket) do
+    readings = SensorReadings.list_sensor_readings(@stream_limit)
+
+    {:noreply,
+      socket
+      |> assign(:device_filter, nil)
+      |> assign(:type_filter, nil)
+      |> stream(:sensor_readings, readings, reset: true)
+    }
   end
 
   defp format_timestamp(%NaiveDateTime{} = ts) do

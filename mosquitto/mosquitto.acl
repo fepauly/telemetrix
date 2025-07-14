@@ -5,3 +5,6 @@ topic write telemetrix/+
 user esp32home
 topic write esp32/+
 topic read telemetrix/+
+
+user test
+topic readwrite #

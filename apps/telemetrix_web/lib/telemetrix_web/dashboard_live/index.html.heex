@@ -1,79 +1,160 @@
 <Layouts.app flash={@flash}>
-  <div class="w-full min-h-screen bg-base-200 p-6">
+  <div class="w-full min-h-screen bg-base-200 p-4 md:p-6">
     <div class="max-w-[1800px] mx-auto">
       <!-- Header -->
-      <div class="bg-base-100 rounded-xl shadow p-6 mb-6">
-        <h1 class="text-2xl font-bold text-primary mb-2">IoT Sensor Dashboard</h1>
-        <p class="text-base-content/70 mb-0">Live-Updates of sensor data from your devices.</p>
+      <div class="bg-base-100 rounded-xl shadow-md p-5 mb-6 border border-base-300/30">
+        <div class="flex items-center">
+          <div class="mr-4 bg-primary/10 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-primary mb-1">IoT Sensor Dashboard</h1>
+            <p class="text-base-content/70 mb-0">Live-Updates of sensor data from your connected devices.</p>
+          </div>
+        </div>
       </div>
 
       <!-- Flex Layout for Content + Sidebar -->
-      <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Left Column -->
-        <div class="flex-1 min-w-0">
-          <!-- Dropdown -->
-          <div class="flex flex-wrap gap-4 items-end mb-6">
-            <!-- Chart Topic Dropdown -->
-            <form phx-change="select_topic">
-              <select name="topic" class="select select-bordered w-48 ml-4">
-                <option value="">Wähle Topic für Chart</option>
-                <%= for {label, value} <- @topic_options do %>
-                  <option value={value} selected={@selected_topic == value}><%= label %></option>
-                <% end %>
-              </select>
-            </form>
-          </div>
-          <!-- Chart -->
-          <%= if @selected_topic do %>
-            <div class="bg-base-100 rounded-xl shadow p-6 mb-6 flex flex-col items-center">
-              <h2 class="text-xl font-semibold mb-4">
-                Device ID: <%= @selected_device_id %> &nbsp; | &nbsp; Type: <%= @selected_topic %>
-              </h2>
-              <.live_component
-                module={TelemetrixWeb.ChartComponent}
-                id="chart-container"
-                chart_data={@chart_data}
-              />
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column (Charts) -->
+        <div class="lg:col-span-2">
+          <!-- Chart Card -->
+          <div class="bg-base-100 rounded-xl shadow-md p-5 mb-6 border border-base-300/30">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+              <h2 class="text-lg font-semibold text-primary">Data Visualization</h2>
+              
+              <!-- Chart Topic Dropdown -->
+              <div class="w-full md:w-auto">
+                <form phx-change="select_topic" class="flex">
+                  <div class="relative w-full md:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <.icon name="hero-chart-bar-micro" class="h-4 w-4 text-base-content/50" />
+                    </div>
+                    <select name="topic" class="select select-bordered w-full pl-10 pr-10 py-2 appearance-none bg-base-200 border-base-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                      <option value="">Select topic for chart</option>
+                      <%= for {label, value} <- @topic_options do %>
+                        <option value={value} selected={@selected_topic == value}><%= label %></option>
+                      <% end %>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <.icon name="hero-chevron-down-micro" class="h-4 w-4 text-base-content/50" />
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
-          <% end %>
+
+            <%= if @selected_topic do %>
+              <div class="bg-base-200/50 rounded-xl p-4 mb-3 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      <.icon name="hero-device-phone-mobile-micro" class="mr-1 h-3 w-3" />
+                      <%= @selected_device_id %>
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                      <.icon name="hero-tag-micro" class="mr-1 h-3 w-3" />
+                      <%= @selected_topic %>
+                    </span>
+                  </div>
+                  <span class="text-xs text-base-content/50">Last <%= @chart_limit %> points</span>
+                </div>
+                <.live_component
+                  module={TelemetrixWeb.ChartComponent}
+                  id="chart-container"
+                  chart_data={@chart_data}
+                />
+              </div>
+            <% else %>
+              <div class="flex flex-col items-center justify-center p-8 bg-base-200/50 rounded-xl text-base-content/60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-3 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p class="text-sm font-medium">Select a topic from the dropdown to view chart data</p>
+              </div>
+            <% end %>
+          </div>
         </div>
 
-        <!-- Right Sidebar (table) -->
-        <div class="lg:w-96 w-full">
-          <div class="bg-base-100 rounded-xl shadow p-4">
-            <h3 class="text-lg font-semibold mb-4 text-primary">Live-Data</h3>
-            <div class="flex flex-wrap gap-4 items-end mb-6">
-              <!-- Filter-Formular -->
-              <form phx-change="filter" class="flex flex-wrap gap-2">
-                <input type="text" name="device_id" value={@device_filter} placeholder="Device ID"
-                  class="input input-bordered w-32" />
-                <input type="text" name="type" value={@type_filter} placeholder="Type"
-                  class="input input-bordered w-32" />
+        <!-- Right Sidebar (Live Data) -->
+        <div class="lg:col-span-1">
+          <div class="bg-base-100 rounded-xl shadow-md p-5 border border-base-300/30 sticky top-20">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-primary flex items-center gap-2">
+                <.icon name="hero-bolt-micro" class="h-4 w-4" />
+                <span>Live Data</span>
+              </h3>
+              
+              <%= if @mqtt_connect do%>
+                <div class="badge badge-accent font-semibold animate-pulse">
+                  <div class="w-2 h-2 rounded-full bg-current mr-1"></div>
+                  Connected
+                </div>
+              <% else %>
+                <div class="badge text-error font-semibold animate-pulse">
+                  <div class="w-2 h-2 rounded-full bg-current mr-1"></div>
+                  Offline
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Filter Form -->
+            <div class="mb-4 bg-base-200/50 p-3 rounded-lg">
+              <form phx-change="filter" class="flex flex-col gap-2">
+                <div class="flex flex-wrap gap-2">
+                  <div class="relative flex-1 min-w-[140px]">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <.icon name="hero-device-phone-mobile-micro" class="h-4 w-4 text-base-content/50" />
+                    </div>
+                    <input type="text" name="device_id" value={@device_filter} placeholder="Device ID"
+                      class="input input-sm w-full pl-9 bg-base-100 border-base-300" />
+                  </div>
+                  <div class="relative flex-1 min-w-[140px]">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <.icon name="hero-tag-micro" class="h-4 w-4 text-base-content/50" />
+                    </div>
+                    <input type="text" name="type" value={@type_filter} placeholder="Type"
+                      class="input input-sm w-full pl-9 bg-base-100 border-base-300" />
+                  </div>
+                </div>
+                <button type="button" phx-click="clear_filters" class="btn btn-xs btn-ghost text-xs">
+                  Clear filters
+                </button>
               </form>
             </div>
-            <div class="overflow-x-auto max-h-[70vh]">
-              <table class="min-w-full bg-base-100 rounded-xl text-sm">
+            
+            <!-- Data Table -->
+            <div class="overflow-x-auto max-h-[60vh] rounded-lg border border-base-300/30">
+              <table class="min-w-full bg-base-100 text-sm">
                 <thead>
                   <tr class="bg-base-200 sticky top-0 z-10">
-                    <th class="py-2 px-4 font-semibold text-center">Timestamp</th>
-                    <th class="py-2 px-4 font-semibold text-center">Device ID</th>
-                    <th class="py-2 px-4 font-semibold text-center">Type</th>
-                    <th class="py-2 px-4 font-semibold text-center">Value</th>
+                    <th class="py-2 px-3 font-semibold text-left text-xs">Time</th>
+                    <th class="py-2 px-3 font-semibold text-left text-xs">Device</th>
+                    <th class="py-2 px-3 font-semibold text-left text-xs">Type</th>
+                    <th class="py-2 px-3 font-semibold text-right text-xs">Value</th>
                   </tr>
                 </thead>
-                <tbody id="sensor-readings" phx-update="stream">
+                <tbody id="sensor-readings" phx-update="stream" class="divide-y divide-base-300/30">
                   <tr id="sensor-readings-empty" class="only:block hidden">
                     <td colspan="4" class="py-6 text-center text-base-content/50">No data found</td>
                   </tr>
                   <tr
                     :for={{dom_id, sr} <- @streams.sensor_readings}
                     id={dom_id}
-                    class="hover:bg-base-200 even:bg-base-100 transition"
+                    class="hover:bg-base-200 transition"
                   >
-                    <td class="py-2 px-4 text-center"><%= format_timestamp(sr.timestamp) %></td>
-                    <td class="py-2 px-4 text-center">{sr.device_id}</td>
-                    <td class="py-2 px-4 text-center">{sr.type}</td>
-                    <td class="py-2 px-4 text-center">{sr.value}</td>
+                    <td class="py-2 px-3 text-xs text-base-content/70 whitespace-nowrap"><%= format_timestamp(sr.timestamp) %></td>
+                    <td class="py-2 px-3 text-xs font-medium">
+                      <div class="truncate max-w-[80px]" title={sr.device_id}>{sr.device_id}</div>
+                    </td>
+                    <td class="py-2 px-3 text-xs">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary/10 text-secondary">
+                        {sr.type}
+                      </span>
+                    </td>
+                    <td class="py-2 px-3 text-right font-mono text-xs">{sr.value}</td>
                   </tr>
                 </tbody>
               </table>

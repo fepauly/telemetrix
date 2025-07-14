@@ -12,7 +12,8 @@ erl_crash.dump
 
 .vscode/
 
-# Zertifikate, Schlüssel und CA-Dateien (niemals ins Repo!)
+
+# certs
 certs/*
 mosquitto/*.pem
 mosquitto/*.key
@@ -21,17 +22,15 @@ mosquitto/rootCA.pem
 mosquitto/mosquitto_passwd
 apps/telemetrix/priv/certs/*
 
-# mkcert CA (lokal, nicht ins Repo)
 *.pem
 *.key
 *.crt
 
 
-# Umgebungsdateien (nur echte Secrets ignorieren)
+# Env files
 .env
+.env.dev
 
-
-# Hilfsskripte und .env.example gehören ins Repo (Showcase!)
 
 *.bat
 *.exp

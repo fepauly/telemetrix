@@ -11,6 +11,15 @@ config :telemetrix, Telemetrix.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :telemetrix, Telemetrix.MQTT,
+  host: "localhost",
+  port: 8883,
+  username: "test",
+  password: "test",
+  use_tls: "true",
+  ca_certfile: "./mosquitto/rootCA.pem",
+  client_id: "telemetrix_dev_#{:rand.uniform(999_999_999)}"
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
