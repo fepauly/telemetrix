@@ -110,3 +110,73 @@
 [data-phx-session] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Modern scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(147, 51, 234, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(147, 51, 234, 0.5);
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid hsl(var(--p));
+  outline-offset: 2px;
+}
+
+/* Table row hover effect */
+tbody tr {
+  position: relative;
+}
+
+tbody tr::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background-color: hsl(var(--p) / 0.1);
+  transition: width 0.2s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+tbody tr:hover::after {
+  width: 100%;
+}
+
+/* Keep table cell content above the hover overlay */
+tbody td {
+  position: relative;
+  z-index: 1;
+}

@@ -4,6 +4,8 @@
 
 This application enables your embedded devices in your home setup to publish data that you can monitor via the Telemetrix Web App.
 
+> Be aware of the current limitations of performance and data storage on the Raspberry Pi!
+
 ## Demo
 
 ![Telemetrix Demo](demo/demo.gif)

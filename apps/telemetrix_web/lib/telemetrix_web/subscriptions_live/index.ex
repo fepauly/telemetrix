@@ -3,8 +3,31 @@ defmodule TelemetrixWeb.SubscriptionsLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-      topics = Telemetrix.Subscriptions.SubscriptionManager.get_topics()
-      {:ok, assign(socket, topics: topics, new_topic: "", error: nil)}
+    if connected?(socket) do
+      Telemetrix.MQTT.ConnectionMonitor.subscribe()
+    end
+
+    topics = Telemetrix.Subscriptions.SubscriptionManager.get_topics()
+
+    # Get actual connection status
+    initial_mqtt_status = Telemetrix.MQTT.ConnectionMonitor.connected?()
+
+    {:ok, assign(socket,
+      topics: topics,
+      new_topic: "",
+      error: nil,
+      mqtt_connect: initial_mqtt_status
+    )}
+  end
+
+  @impl true
+  def handle_info(:mqtt_disconnect, socket) do
+    {:noreply, assign(socket, mqtt_connect: false)}
+  end
+
+  @impl true
+  def handle_info(:mqtt_connect, socket) do
+    {:noreply, assign(socket, mqtt_connect: true)}
   end
 
   @impl true

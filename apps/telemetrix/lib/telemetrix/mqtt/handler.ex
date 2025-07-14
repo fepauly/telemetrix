@@ -10,11 +10,13 @@ defmodule Telemetrix.MQTT.Handler do
 
   def connection(:up, state) do
     Logger.info("MQTT connected")
+    Phoenix.PubSub.broadcast(Telemetrix.PubSub, "mqtt_connect", :mqtt_connect)
     {:ok, state}
   end
 
   def connection(:down, state) do
     Logger.warning("MQTT disconnected")
+    Phoenix.PubSub.broadcast(Telemetrix.PubSub, "mqtt_disconnect", :mqtt_disconnect)
     {:ok, state}
   end
 
