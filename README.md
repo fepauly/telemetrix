@@ -18,12 +18,27 @@ This application enables your embedded devices in your home setup to publish dat
 - **Dockerized Setup**: Easy deployment using Docker and Docker Compose
 - **Ansible Automation**: Streamlined deployment to Raspberry Pi
 
-## Planned Features
+## Planned Features & Roadmap
 
-- Expanding Dashboard UI with advanced monitoring/graph features
-- Sending commands/actions to IoT devices
-- Data Export
-- and many more :smile:
+### Foundation & Reliability
+- [ ] **Health Monitoring**: System health endpoints and connection status monitoring
+- [ ] **Data Management**: Automatic data retention policies and cleanup jobs
+- [ ] **Basic Alerting**: Threshold-based alerts with browser notifications
+- [ ] **Data Export**: CSV/JSON export functionality for sensor data
+
+### Advanved Features
+- [ ] **Real-time Analytics**: Moving averages etc.
+- [ ] **Device Management**: Interface for device registration and configuration
+- [ ] **Enhanced Monitoring**: Database metrics, MQTT message rates, and system performance
+
+### More Advanced Features
+- [ ] **Time-Series Optimization**: Migration to InfluxDB/TimescaleDB for better performance
+- [ ] **Device Control**: Bidirectional MQTT communication for remote device commands
+- [ ] **Advanced Analytics**: Machine learning for predictive maintenance and pattern recognition
+
+### Future Considerations
+- Advanced security features
+- Cloud deployment options
 
 
 ## Quick Start
