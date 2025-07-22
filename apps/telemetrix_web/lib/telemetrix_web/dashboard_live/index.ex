@@ -1,6 +1,5 @@
 defmodule TelemetrixWeb.DashboardLive.Index do
   use TelemetrixWeb, :live_view
-  alias Telemetrix.SensorReadings
 
   @stream_limit 20
   @chart_limit 100

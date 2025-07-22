@@ -11,6 +11,12 @@ config :telemetrix, Telemetrix.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :telemetrix, Telemetrix.Influx.InfluxConnection,
+  auth: [method: :token, token: "telematrix=="],
+  bucket: "telematrix",
+  org: "telematrix",
+  version: :v2
+
 config :telemetrix, Telemetrix.MQTT,
   host: "localhost",
   port: 8883,

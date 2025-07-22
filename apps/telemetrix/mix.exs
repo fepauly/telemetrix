@@ -43,7 +43,8 @@ defmodule Telemetrix.MixProject do
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
-      {:tortoise, "~> 0.10"}
+      {:tortoise, "~> 0.10"},
+      {:instream, "~> 2.0"}
     ]
   end
 

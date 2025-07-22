@@ -16,6 +16,7 @@ defmodule Telemetrix.Application do
       {Phoenix.PubSub, name: Telemetrix.PubSub},
       # Start a worker by calling: Telemetrix.Worker.start_link(arg)
       # {Telemetrix.Worker, arg}
+      Telemetrix.Influx.InfluxConnection,
       {Tortoise.Connection,
       [
         client_id: Application.get_env(:telemetrix, Telemetrix.MQTT)[:client_id],

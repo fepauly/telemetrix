@@ -1,7 +1,6 @@
 defmodule Telemetrix.MQTT.Handler do
   use Tortoise.Handler
   require Logger
-  alias Telemetrix.SensorReadings
 
   def init(args) do
     Logger.info("Initializing handler with args: #{inspect(args)}")
@@ -32,21 +31,19 @@ defmodule Telemetrix.MQTT.Handler do
         type = List.last(rest)
 
         case parse_payload(payload) do
-          {:ok, value, timestamp} ->
-            case SensorReadings.ingest(device_id, type, value, timestamp) do
-              {:ok, reading} ->
-                Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
-
-              {:error, changeset} ->
-                Logger.error("[DB] #{inspect(changeset)} | #{device_id}/#{type}")
-            end
+          {:ok, value} ->
+            point = %Telemetrix.Influx.SensorDataPoint{}
+            point = %{point | fields: %{point.fields | value: value}}
+            point = %{point | tags: %{point.tags | device_id: device_id, type: type}}
+            Logger.debug("[DATA POINT] #{inspect(point)}")
+            Telemetrix.Influx.InfluxConnection.write(point)
 
           {:error, reason} ->
             Logger.error("[MQTT] Invalid payload: #{inspect(reason)} | #{inspect(payload)}")
         end
 
-      _ ->
-        Logger.error("[MQTT] Unexepected topic format: #{inspect(topic)}")
+        _ ->
+          Logger.error("[MQTT] Unexepected topic format: #{inspect(topic)}")
     end
 
     {:ok, state}
@@ -68,13 +65,15 @@ defmodule Telemetrix.MQTT.Handler do
 
   defp parse_payload(payload) do
     case Jason.decode(payload) do
-      {:ok, %{"value" => value, "timestamp" => ts}} ->
-        case DateTime.from_unix(trunc(ts)) do
-          {:ok, dt} -> {:ok, value, dt}
-          error -> {:error, {:invalid_timestamp, error}}
-        end
-
-      error -> {:error, {:invalid_json, error}}
+      {:ok, %{"value" => value}} when is_number(value) ->
+        Logger.debug("Data point value #{value}")
+        {:ok, value * 1.0} # enforce float
+      {:ok, %{"value" => value}} ->
+        {:error, {:invalid_value_type, value}}
+      {:ok, _other} ->
+        {:error, :missing_value_field}
+      error ->
+        {:error, {:invalid_json, error}}
     end
   end
 end
