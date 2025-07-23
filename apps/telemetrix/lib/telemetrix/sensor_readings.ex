@@ -43,13 +43,50 @@ defmodule Telemetrix.SensorReadings do
     |> Enum.filter(fn r -> r != nil end)
   end
 
+  def list_device_id_types_unique(range \\ "30d") do
+    query = """
+    from(bucket: "#{InfluxConnection.config(:bucket)}")
+      |> range(start: -#{range})
+      |> filter(fn: (r) => r._measurement == "sensor_data")
+      |> group(columns: ["device_id", "type"])
+      |> first()
+      |> keep(columns: ["device_id", "type"])
+    """
+
+    case InfluxConnection.query(query) do
+      records when is_list(records) ->
+        records
+        |> Enum.map(fn record ->
+          {record["device_id"], record["type"]}
+        end)
+        |> Enum.uniq()
+        |> Enum.sort()
+
+      {:ok, records} when is_list(records) ->
+        records
+        |> Enum.map(fn record ->
+          {record["device_id"], record["type"]}
+        end)
+        |> Enum.uniq()
+        |> Enum.sort()
+
+      error ->
+        Logger.error("Failed to fetch unique topics: #{inspect(error)}")
+        []
+    end
+  end
+
   defp parse_single_record(record) do
     with {:ok, timestamp} <- parse_timestamp(record["_time"]),
           value when is_number(value) <- record["_value"],
           device_id when is_binary(device_id) <- record["device_id"],
           type when is_binary(type) <- record["type"] do
 
+      # Generate unique ID for LiveView streams
+      id = "#{device_id}_#{type}_#{DateTime.to_unix(timestamp, :nanosecond)}"
+
       %{
+        id: id,
         timestamp: timestamp,
         value: value,
         type: type,
@@ -58,6 +95,7 @@ defmodule Telemetrix.SensorReadings do
     else
       error ->
         Logger.warning("Failed to parse record: #{inspect(record)}, error: #{inspect(error)}")
+        nil
     end
   end
 

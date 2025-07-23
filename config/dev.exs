@@ -12,9 +12,9 @@ config :telemetrix, Telemetrix.Repo,
   pool_size: 10
 
 config :telemetrix, Telemetrix.Influx.InfluxConnection,
-  auth: [method: :token, token: "telematrix=="],
-  bucket: "telematrix",
-  org: "telematrix",
+  auth: [method: :token, token: "telemetrix=="],
+  bucket: "telemetrix",
+  org: "telemetrix",
   version: :v2
 
 config :telemetrix, Telemetrix.MQTT,

@@ -25,37 +25,41 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
               <h2 class="text-lg font-semibold text-primary">Data Visualization</h2>
               
-              <!-- Chart Topic Dropdown -->
-              <div class="w-full md:w-auto relative">
-                <div class="relative w-full md:w-64 z-20">
-                  <!-- Dropdown Button -->
-                  <button type="button" phx-click="dropdown-toggle" class="flex items-center justify-between w-full bg-base-200 border border-base-300 rounded-lg p-2 focus:ring-2 focus:ring-primary/50 focus:border-primary">
-                    <div class="flex items-center">
-                      <.icon name="hero-chart-bar-micro" class="h-4 w-4 text-base-content/50 mr-2" />
-                      <span class="text-sm"><%= @selected_topic || "Select topic for chart" %></span>
+              <!-- Chart Topic Controls -->
+              <div class="w-full md:w-auto">
+                <div class="flex gap-2 items-center">
+                  <!-- Dropdown -->
+                  <div class="relative flex-1 md:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                      <.icon name="hero-chart-bar-micro" class="h-4 w-4 text-base-content/40" />
                     </div>
-                    <.icon name="hero-chevron-down-micro" class={"h-4 w-4 text-base-content/50 transition-transform #{@dropdown_open && "transform rotate-180"}"} />
-                  </button>
-                  
-                  <!-- Dropdown Menu -->
-                  <div class={"absolute top-full left-0 right-0 mt-1 bg-base-100 border border-base-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-30 #{if @dropdown_open, do: "", else: "hidden"}"}>
-                    <div class="py-1">
-                      <a href="#" phx-click="select-topic-item" phx-value-topic="" class={"block px-4 py-2 text-sm hover:bg-base-200 #{if @selected_topic == nil, do: "bg-primary/10 text-primary", else: "text-base-content"}"}>
-                        No selection
-                      </a>
-                      <%= for {label, value} <- @topic_options do %>
-                        <a href="#" phx-click="select-topic-item" phx-value-topic={value} class={"block px-4 py-2 text-sm hover:bg-base-200 #{if @selected_topic == value, do: "bg-primary/10 text-primary", else: "text-base-content"}"}>
-                          <%= label %>
-                        </a>
-                      <% end %>
-                    </div>
+                    <form phx-change="select-topic">
+                      <select 
+                        name="topic"
+                        class="select select-sm select-bordered w-full pl-9 pr-3 bg-base-100 border-base-300 hover:border-primary/50 focus:border-primary focus:ring-0 rounded-lg shadow-sm transition-all duration-200"
+                      >
+                        <option value="" class="text-base-content/60">Choose a sensor topic...</option>
+                        <%= for {label, value} <- @topic_options do %>
+                          <option value={value} selected={@selected_topic == value} class="text-base-content">
+                            <%= label %>
+                          </option>
+                        <% end %>
+                      </select>
+                    </form>
                   </div>
+                  
+                  <!-- Refresh Button -->
+                  <button type="button" phx-click="refresh_topics" 
+                          class={"btn btn-sm bg-primary hover:bg-primary/90 text-primary-content border-0 rounded-lg shadow-sm transition-all duration-200 #{if @topics_loading, do: "loading", else: ""}"} 
+                          disabled={@topics_loading}
+                          title="Refresh topic list">
+                    <%= if @topics_loading do %>
+                      <span class="loading loading-spinner loading-xs"></span>
+                    <% else %>
+                      <.icon name="hero-arrow-path-micro" class="h-4 w-4" />
+                    <% end %>
+                  </button>
                 </div>
-                
-                <!--  Only when dropdown is open -->
-                <%= if @dropdown_open do %>
-                  <div class="fixed inset-0 z-10" phx-click="dropdown-close"></div>
-                <% end %>
               </div>
             </div>
 
