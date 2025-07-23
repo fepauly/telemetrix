@@ -27,6 +27,8 @@ import Config
     auth: [method: :token, token: System.get_env("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")],
     bucket: System.get_env("DOCKER_INFLUXDB_INIT_BUCKET"),
     org: System.get_env("DOCKER_INFLUXDB_INIT_ORG"),
+    host: "influxdb",
+    port: 8086,
     version: :v2
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
