@@ -64,8 +64,24 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - telemetrix_network
+  
+  influxdb:
+    image: influxdb:2
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    env_file:
+      - .env
+    volumes:
+      - influxdb2-data:/var/lib/influxdb2
+      - influxdb2-config:/etc/influxdb2
+    networks:
+      - telemetrix_network
+
 volumes:
   pgdata:
+  influxdb2-data:
+  influxdb2-config:
 
 networks:
   telemetrix_network:

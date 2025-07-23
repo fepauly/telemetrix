@@ -12,10 +12,12 @@ defmodule Telemetrix.Application do
       Telemetrix.Repo,
       {Ecto.Migrator,
       repos: Application.fetch_env!(:telemetrix, :ecto_repos), skip: skip_migrations?()},
+      {Task.Supervisor, name: Telemetrix.TaskSupervisor},
       {DNSCluster, query: Application.get_env(:telemetrix, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Telemetrix.PubSub},
       # Start a worker by calling: Telemetrix.Worker.start_link(arg)
       # {Telemetrix.Worker, arg}
+      Telemetrix.Influx.InfluxConnection,
       {Tortoise.Connection,
       [
         client_id: Application.get_env(:telemetrix, Telemetrix.MQTT)[:client_id],

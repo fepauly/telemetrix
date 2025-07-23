@@ -3,7 +3,7 @@ services:
     image: eclipse-mosquitto
     restart: unless-stopped
     ports:
-      - "8883:8883"
+      - 8883:8883
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./mosquitto/mosquitto_passwd:/mosquitto/config/mosquitto_passwd:ro
@@ -23,6 +23,24 @@ services:
       - "5432:5432"
     volumes:
       - pgdata_dev:/var/lib/postgresql/data
+  
+  influxdb:
+    image: influxdb:2
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=telemetrix
+      - DOCKER_INFLUXDB_INIT_PASSWORD=#telemetrix
+      - DOCKER_INFLUXDB_INIT_ORG=telemetrix
+      - DOCKER_INFLUXDB_INIT_BUCKET=telemetrix
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=telemetrix==
+    volumes:
+      - influxdb2-data:/var/lib/influxdb2
+      - influxdb2-config:/etc/influxdb2
 
 volumes:
   pgdata_dev:
+  influxdb2-data:
+  influxdb2-config:

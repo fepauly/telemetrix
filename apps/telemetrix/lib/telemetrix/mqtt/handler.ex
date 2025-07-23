@@ -1,7 +1,6 @@
 defmodule Telemetrix.MQTT.Handler do
   use Tortoise.Handler
   require Logger
-  alias Telemetrix.SensorReadings
 
   def init(args) do
     Logger.info("Initializing handler with args: #{inspect(args)}")
@@ -21,8 +20,7 @@ defmodule Telemetrix.MQTT.Handler do
   end
 
   def handle_message(topic, payload, state) do
-    parts =
-    case topic do
+    parts = case topic do
       t when is_binary(t) -> String.split(t, "/")
       t when is_list(t) -> t
     end
@@ -32,21 +30,46 @@ defmodule Telemetrix.MQTT.Handler do
         type = List.last(rest)
 
         case parse_payload(payload) do
-          {:ok, value, timestamp} ->
-            case SensorReadings.ingest(device_id, type, value, timestamp) do
-              {:ok, reading} ->
-                Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
+          {:ok, value} ->
+            timestamp = DateTime.utc_now()
+            id = "#{device_id}_#{type}_#{DateTime.to_unix(timestamp, :nanosecond)}"
 
-              {:error, changeset} ->
-                Logger.error("[DB] #{inspect(changeset)} | #{device_id}/#{type}")
-            end
+            reading = %{
+                  id: id,
+                  device_id: device_id,
+                  type: type,
+                  value: value,
+                  timestamp: timestamp,
+                  inserted_at: timestamp
+                }
+
+            # Broadcast reading to UI for immediate update
+            Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:new_reading, reading})
+
+            # Async database write
+            Task.Supervisor.start_child(Telemetrix.TaskSupervisor, fn ->
+              point = %{
+                measurement: "sensor_data",
+                fields: %{value: value},
+                tags: %{device_id: device_id, type: type},
+                timestamp: DateTime.to_unix(timestamp, :nanosecond)
+              }
+
+              case Telemetrix.Influx.InfluxConnection.write([point]) do
+                :ok ->
+                  Logger.debug("[InfluxDB] Successfully wrote: #{device_id}/#{type} = #{value}")
+                error ->
+                  Logger.error("[InfluxDB] Write failed: #{inspect(error)}")
+                  Phoenix.PubSub.broadcast(Telemetrix.PubSub, "sensor_readings", {:write_error, reading})
+              end
+            end)
 
           {:error, reason} ->
             Logger.error("[MQTT] Invalid payload: #{inspect(reason)} | #{inspect(payload)}")
         end
 
       _ ->
-        Logger.error("[MQTT] Unexepected topic format: #{inspect(topic)}")
+        Logger.error("[MQTT] Unexpected topic format: #{inspect(topic)}")
     end
 
     {:ok, state}
@@ -68,13 +91,15 @@ defmodule Telemetrix.MQTT.Handler do
 
   defp parse_payload(payload) do
     case Jason.decode(payload) do
-      {:ok, %{"value" => value, "timestamp" => ts}} ->
-        case DateTime.from_unix(trunc(ts)) do
-          {:ok, dt} -> {:ok, value, dt}
-          error -> {:error, {:invalid_timestamp, error}}
-        end
-
-      error -> {:error, {:invalid_json, error}}
+      {:ok, %{"value" => value}} when is_number(value) ->
+        Logger.debug("Data point value #{value}")
+        {:ok, value * 1.0} # Enforce float
+      {:ok, %{"value" => value}} ->
+        {:error, {:invalid_value_type, value}}
+      {:ok, _other} ->
+        {:error, :missing_value_field}
+      error ->
+        {:error, {:invalid_json, error}}
     end
   end
 end

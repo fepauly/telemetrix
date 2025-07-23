@@ -58,7 +58,8 @@ defmodule TelemetrixWeb.MixProject do
       {:gettext, "~> 0.26"},
       {:telemetrix, in_umbrella: true},
       {:jason, "~> 1.2"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:tz, "~> 0.26"}
     ]
   end
 
