@@ -25,7 +25,21 @@ defmodule Telemetrix.Release do
       for repo <- repos() do
         repo.query!("SELECT 1")
       end
+
+      influx_ready?()
+
       true
+    rescue
+      _ -> false
+    end
+  end
+
+  defp influx_ready?() do
+    try do
+      case :httpc.request(:get, {'http://influxdb:8086/health', []}, [], []) do
+        {:ok, {{_, 200, _}, _, _}} -> true
+        _ -> false
+      end
     rescue
       _ -> false
     end

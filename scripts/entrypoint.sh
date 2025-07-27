@@ -22,15 +22,15 @@ MAX_TRIES=60
 until /app/bin/telemetrix_umbrella eval "Telemetrix.Release.db_ready?()" 2>/dev/null || [ $COUNT -eq $MAX_TRIES ]; do
     sleep 1
     COUNT=$((COUNT+1))
-    echo "Waiting for database... ($COUNT/$MAX_TRIES)"
+    echo "Waiting for databases... ($COUNT/$MAX_TRIES)"
 done
 
 if [ $COUNT -eq $MAX_TRIES ]; then
-    echo "Database not reachable after $MAX_TRIES attempts."
+    echo "Databases not reachable after $MAX_TRIES attempts."
     exit 1
 fi
 
-echo "Database is ready!"
+echo "Databases are ready!"
 
 # Migrate database when db is ready
 echo "Running database migrations..."

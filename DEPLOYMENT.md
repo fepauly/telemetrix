@@ -109,6 +109,9 @@ Edit `ansible/secrets.yml` using `ansible-vault edit ansible/secrets.yml`:
 secret_key_base: your_generated_secret_key
 postgres_password: your_secure_postgres_password
 mqtt_password: your_secure_mqtt_password
+influx_token: your_influx_token
+influx_password: your_influx_password
+influx_user: your_influx_user
 ```
 
 ### 4. Run the Ansible Playbook
@@ -157,6 +160,7 @@ If you encounter certificate validation issues, make sure your computer trusts t
 # On Raspberry Pi
 docker-compose logs telemetrix
 docker-compose logs mosquitto
+docker-compose logs influxdb
 ```
 
 ### Check Database

@@ -32,7 +32,7 @@ This application enables your embedded devices in your home setup to publish dat
 - [ ] **Enhanced Monitoring**: Database metrics, MQTT message rates, and system performance
 
 ### More Advanced Features
-- [ ] **Time-Series Optimization**: Migration to InfluxDB/TimescaleDB for better performance
+- [x] **Time-Series Optimization**: Migration to InfluxDB/TimescaleDB for better performance
 - [ ] **Device Control**: Bidirectional MQTT communication for remote device commands
 - [ ] **Advanced Analytics**: Machine learning for predictive maintenance and pattern recognition
 
@@ -47,7 +47,7 @@ This application enables your embedded devices in your home setup to publish dat
 
 For local development, you'll need:
 - Elixir and Erlang installed ([installation guide](https://elixir-lang.org/install.html))
-- PostgreSQL database
+- PostgreSQL and InfluxDB database
 - Mosquitto MQTT broker
 - NGINX Reverse Proxy
 - Docker and Docker Compose (for containerized deployment)
@@ -77,7 +77,7 @@ mix phx.server
 
 Visit [`https://dashboard.local:4000`](https://dashboard.local:4000) to see the application.
 
-> Make sure the PostgreSQL database, the MQTT broker and NGINX reverse proxy are up an running. You can utilize the `docker-compose.yml` for running them in a containerized environment.
+> Make sure the PostgreSQL and InfluxDB database, the MQTT broker and NGINX reverse proxy are up an running. You can utilize the `docker-compose.yml` for running them in a containerized environment.
 
 ## Deployment
 
